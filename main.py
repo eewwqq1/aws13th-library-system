@@ -1,17 +1,24 @@
-from models import Book
-from models import Member
-from models import Library
+from datetime import datetime, timedelta
+from models import Book, Member, Library, Loan
 import utils
 
 # Library 구현 시스템 구현을 위한 library 객체 생성, csv파일 목록 초기화
 my_library = Library()
+
 print("[SYSTEM] member.csv에서 도서관의 회원 목록을 구성합니다 ")
 member_file_path = "member.csv"
 my_library.set_member(member_file_path)
+
 print("[SYSTEM] book.csv에서 도서관의 장서 목록을 구성합니다.")
 book_file_path = "books.csv"
 my_library.set_book(book_file_path)
+
+print("[SYSTEM] loans.csv에서 도서관의 대출 목록을 구성합니다.")
+loan_file_path = "loans.csv"
+my_library.set_loan(loan_file_path)
+
 print("[SYSTEM] 도서관의 목록이 갱신되었습니다..")
+
 
 # 프로그램의 동작 while문 사용하여 매뉴 선택
 while True:
@@ -83,9 +90,15 @@ while True:
               print("[SYSTEM] 이미 대출 중인 책입니다.")
           else:
               book.is_loaned = True
+              book.loan_date = datetime.now()
+              book.due_date = book.loan_date + timedelta(days=7)
               member.add_book(book)
-              print(f"[SYSTEM] {member.name}님이 '{book.title}'을 대출했습니다.")
 
+              # Loan 객체 생성 후 추가
+              loan = Loan(member.name, book.isbn)
+              my_library.add_loan(loan)
+
+              print(f"[SYSTEM] {member.name}님이 '{book.title}'을 대출했습니다. 반납 예정일: {loan.due_date.strftime('%Y-%m-%d')}")
 
       elif userInput== 5:
           print("도서 반납 매뉴입니다, 책을 반납하려면 회원이름과, 반납할 책의 isbn을 입력해 주세요")
